@@ -9,90 +9,66 @@ graph TB
     classDef network fill:#f5f3ff,stroke:#6d28d9,stroke-width:2px
 
     subgraph tailscale[Self-hosted Infrastructure]
-        %% Security & Monitoring Core
-        subgraph caspar[caspar - Hardened Gentoo]
-            caspar_spec["16GB RAM | 1TB Storage"]
-            subgraph security[Security Infrastructure]
-                subgraph identity[Identity Management]
-                    zitadel[Zitadel OIDC/OAuth2]
-                end
-                subgraph firewall[Network Security]
-                    fw[Custom Firewall Rules]
-                end
+        subgraph caspar[caspar - Hardened Gentoo - 16GB/1TB]
+            subgraph security[Security]
+                zitadel[Zitadel OIDC/OAuth2]
+                fw[Firewall Rules]
             end
-            subgraph monitoring[Infrastructure Monitoring]
-                grafana[Grafana Dashboard]
+            subgraph monitoring[Monitoring]
+                grafana[Grafana]
                 prometheus[Prometheus + Alertmanager]
                 uptime[Uptime Kuma]
-                node_exp[Node Exporter]
             end
         end
 
-        %% Application Server
-        subgraph balthasar[balthasar - Ubuntu]
-            balthasar_spec["32GB RAM | 1TB Storage"]
-            subgraph social[Social Media Platform]
+        subgraph balthasar[balthasar - Ubuntu - 32GB/1TB]
+            subgraph social[Social]
                 misskey[Misskey v13]
-                minio[MinIO Object Storage]
-                mcaptcha[mCaptcha Service]
-                deeplx[DeepLX Translation]
+                minio[MinIO]
+                mcaptcha[mCaptcha]
+                deeplx[DeepLX]
             end
-            
-            subgraph matrix[Matrix Environment]
-                synapse[Matrix Synapse]
-                element[Element Web]
+            subgraph matrix[Matrix]
+                synapse[Synapse]
+                element[Element]
                 jitsi[Jitsi Meet]
             end
-            
-            subgraph apps[Applications]
-                growi[GROWI Wiki]
-                vikunja[Vikunja Tasks]
-                ctfd[CTFd Platform]
+            subgraph apps[Apps]
+                growi[GROWI]
+                vikunja[Vikunja]
+                ctfd[CTFd]
                 cryptpad[CryptPad]
-                searxng[SearXNG Search]
+                searxng[SearXNG]
             end
         end
 
-        %% Gaming Server
-        subgraph melchior[melchior - NixOS]
-            melchior_spec["16GB RAM | 1TB Storage"]
-            subgraph game[Game Servers]
-                minecraft[Minecraft Java Edition]
-            end
+        subgraph melchior[melchior - NixOS - 16GB/1TB]
+            minecraft[Minecraft Java]
         end
 
-        %% Network Security Monitoring
-        subgraph raspi[Raspberry Pi - Security Monitor]
-            raspi_spec["8GB RAM | 2TB Storage"]
-            subgraph nsm[Network Security Monitoring]
-                tpot[T-Pot Honeypot]
-                arkime[Arkime v3 PCAP]
+        subgraph raspi[raspi - RPi OS - 8GB/2TB]
+            subgraph nsm[Security Monitoring]
+                tpot[T-Pot]
+                arkime[Arkime v3]
                 zeek[Zeek IDS]
             end
         end
 
-        %% Service Dependencies
+        %% Dependencies
         zitadel -.-> balthasar
         nsm -.-> monitoring
-        monitoring --> social
-        monitoring --> matrix
-        monitoring --> apps
-        monitoring --> game
+        monitoring --> social & matrix & apps & minecraft
         social --> minio
         matrix --> jitsi
 
-        %% Notes
-        note["Infrastructure Components:
-        - All servers on Tailscale mesh network
-        - Node Exporter + cAdvisor on all hosts
-        - Zitadel SSO for web services
-        - Centralized logging and monitoring"]
+        %% Note
+        note["Shared: Tailscale mesh, Node Exporter + cAdvisor, Zitadel SSO"]
     end
 
     %% Apply styles
     class caspar,balthasar,melchior homeServer
-    class security,social,matrix,apps,game service
+    class security,social,matrix,apps service
     class monitoring,prometheus,grafana,uptime monitoring
-    class raspi,nsm,firewall security
+    class raspi,nsm security
     class tailscale network
 ```
